@@ -48,6 +48,7 @@ int main()
 {
     stdio_init_all();
     adc_setup();
+    init_timer_interrupt(timer);
 
     while (true)
         ;
