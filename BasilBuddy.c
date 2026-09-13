@@ -5,9 +5,21 @@
 #include "hardware/timer.h"
 #include "hardware/sync.h"
 
+// Pins
 const int ADC0 = 0;
 const int TEMP_SENSOR = 4;
 
+// Values for estimating moisture
+const uint16_t dry = 3650;
+
+// Values for estimating temperature
+const double device_v = 3.3;
+const double adc_codes = 4096.0;
+const double vbe_voltage = 0.706;
+const double vbe_temp = 27.0;
+const double slope = 0.001721;
+
+// Struct for storing readings
 typedef struct
 {
     volatile uint32_t seq;
@@ -42,21 +54,28 @@ bool read_sensors_irq(struct repeating_timer *t)
     return true;
 }
 
+double raw_to_centigrade(uint16_t raw_value)
+{
+    double v = (double)raw_value * device_v / adc_codes;
+    double result = vbe_temp - ((v - vbe_voltage) / slope);
+    return result;
+}
+
 int main()
 {
     stdio_init_all();
     adc_setup();
 
-    // Every 30 seconds
     add_repeating_timer_ms(30000, read_sensors_irq, NULL, &timer);
 
     while (true)
     {
         sleep_ms(30000);
-        printf("Seq: %u, Moisture: %u, Temp: %u, Timestamp: %llu\n",
+
+        printf("Seq: %u, Moisture: %u, Temp: %.2f, Timestamp: %llu\n",
                LAST_READING.seq,
                LAST_READING.moisture_raw,
-               LAST_READING.temp_raw,
+               raw_to_centigrade(LAST_READING.temp_raw),
                to_us_since_boot(LAST_READING.timestamp));
     }
 }
