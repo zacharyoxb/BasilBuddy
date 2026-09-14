@@ -5,21 +5,17 @@
 #include "hardware/timer.h"
 #include "hardware/sync.h"
 
-// Pins
-const int ADC0 = 0;
-const int TEMP_SENSOR = 4;
+#include "hid_descriptor.h"
 
-// Values for estimating moisture
-const uint16_t dry = 3650;
+const int ADC0_PIN = 0;
+const int TEMP_SENSOR_PIN = 4;
 
-// Values for estimating temperature
 const double device_v = 3.3;
 const double adc_codes = 4096.0;
 const double vbe_voltage = 0.706;
 const double vbe_temp = 27.0;
 const double slope = 0.001721;
 
-// Struct for storing readings
 typedef struct
 {
     volatile uint32_t seq;
@@ -38,15 +34,13 @@ void adc_setup()
     adc_set_temp_sensor_enabled(true);
 }
 
-void send_bt_packet() {}
-
 bool read_sensors_irq(struct repeating_timer *t)
 {
     LAST_READING.seq++;
     __dmb();
-    adc_select_input(ADC0);
+    adc_select_input(ADC0_PIN);
     LAST_READING.moisture_raw = adc_read();
-    adc_select_input(TEMP_SENSOR);
+    adc_select_input(TEMP_SENSOR_PIN);
     LAST_READING.temp_raw = adc_read();
     LAST_READING.timestamp = get_absolute_time();
     __dmb();
@@ -54,12 +48,18 @@ bool read_sensors_irq(struct repeating_timer *t)
     return true;
 }
 
-double raw_to_centigrade(uint16_t raw_value)
+double moisture_to_percent(uint16_t raw_value)
+{
+}
+
+double temp_to_c(uint16_t raw_value)
 {
     double v = (double)raw_value * device_v / adc_codes;
     double result = vbe_temp - ((v - vbe_voltage) / slope);
     return result;
 }
+
+void send_bt_packet() {}
 
 int main()
 {
@@ -70,12 +70,12 @@ int main()
 
     while (true)
     {
-        sleep_ms(30000);
-
         printf("Seq: %u, Moisture: %u, Temp: %.2f, Timestamp: %llu\n",
                LAST_READING.seq,
                LAST_READING.moisture_raw,
-               raw_to_centigrade(LAST_READING.temp_raw),
+               temp_to_c(LAST_READING.temp_raw),
                to_us_since_boot(LAST_READING.timestamp));
+
+        sleep_ms(30000);
     }
 }

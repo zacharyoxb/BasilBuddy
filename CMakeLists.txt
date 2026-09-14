@@ -35,7 +35,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(BasilBuddy BasilBuddy.c )
+add_executable(BasilBuddy src/main.c src/hid_descriptor.c)
 
 pico_set_program_name(BasilBuddy "BasilBuddy")
 pico_set_program_version(BasilBuddy "0.1")
