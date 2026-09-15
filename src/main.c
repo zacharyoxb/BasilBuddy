@@ -10,11 +10,13 @@
 const int ADC0_PIN = 0;
 const int TEMP_SENSOR_PIN = 4;
 
-const double device_v = 3.3;
-const double adc_codes = 4096.0;
-const double vbe_voltage = 0.706;
-const double vbe_temp = 27.0;
-const double slope = 0.001721;
+const double DEVICE_V = 3.29;
+const double ADC_CODES = 4096.0;
+const double VBE_VOLTAGE = 0.706;
+const double VBE_TEMP = 27.0;
+const double SLOPE = 0.001721;
+
+const double MAX_DRY_VAL = 3600;
 
 typedef struct
 {
@@ -50,13 +52,17 @@ bool read_sensors_irq(struct repeating_timer *t)
 
 double moisture_to_percent(uint16_t raw_value)
 {
+    double multiplier = 100 / MAX_DRY_VAL;
+    double clamped = (double)raw_value > MAX_DRY_VAL ? MAX_DRY_VAL : (double)raw_value;
+    double dry_percent = clamped * multiplier;
+    return 100.0 - dry_percent;
 }
 
 double temp_to_c(uint16_t raw_value)
 {
-    double v = (double)raw_value * device_v / adc_codes;
-    double result = vbe_temp - ((v - vbe_voltage) / slope);
-    return result;
+    double adc_v = (double)raw_value * DEVICE_V / ADC_CODES;
+    double temp_c = VBE_TEMP - (adc_v - VBE_VOLTAGE) / SLOPE;
+    return temp_c;
 }
 
 void send_bt_packet() {}
@@ -68,11 +74,12 @@ int main()
 
     add_repeating_timer_ms(30000, read_sensors_irq, NULL, &timer);
 
+    printf("Seq num, Humidity, Temp, Timestamp");
     while (true)
     {
-        printf("Seq: %u, Moisture: %u, Temp: %.2f, Timestamp: %llu\n",
+        printf("%u, %.2f%%, %.2f, %llu\n",
                LAST_READING.seq,
-               LAST_READING.moisture_raw,
+               moisture_to_percent(LAST_READING.moisture_raw),
                temp_to_c(LAST_READING.temp_raw),
                to_us_since_boot(LAST_READING.timestamp));
 
