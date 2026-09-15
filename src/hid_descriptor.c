@@ -1,37 +1,35 @@
 #include <stdint.h>
+#include "hid_sensor_spec.h"
 
 // from USB HID Specification
 const uint8_t hid_descriptor_plant_sensor[] = {
     // --- Combined Plant Sensor (Temperature + Humidity) ---
-    0x05, 0x20, // USAGE_PAGE (Sensor)
-    0x09, 0x01, // USAGE (Sensor) - Top-level Collection
-    0xA1, 0x01, // COLLECTION (Application)
+    HID_USAGE_PAGE_SENSOR,
+    HID_USAGE_SENSOR_TYPE_COLLECTION,
+    HID_COLLECTION(0x01),
 
     // --- Report ID ---
-    // The first byte of every data packet must match this ID.
-    0x85, 0x01, //   REPORT_ID (1)
+    HID_REPORT_ID(0x01), //   1
 
     // --- Temperature Field ---
-    0x05, 0x20,       //   USAGE_PAGE (Sensor)
-    0x09, 0x34,       //   USAGE (Environmental: Temperature Data)
-    0x15, 0x64,       //   LOGICAL_MINIMUM (-10000)
-    0x26, 0x10, 0x27, //   LOGICAL_MAXIMUM (10000) -> -100.00C to 100.00C
-    0x75, 0x10,       //   REPORT_SIZE (16)
-    0x95, 0x01,       //   REPORT_COUNT (1)
-    0x55, 0x0E,       // UNIT_EXPONENT (-2, i.e. divide by 100)
-    0x81, 0x02,       //   INPUT (Data,Var,Abs)
+    HID_USAGE_PAGE_SENSOR,
+    HID_USAGE_SENSOR_DATA_ENVIRONMENTAL_TEMPERATURE,
+    HID_LOGICAL_MIN_16(0xF0, 0xD8), //  -10000
+    HID_LOGICAL_MAX_16(0x10, 0x27), //   10000 -> -100.00C to 100.00C
+    HID_REPORT_SIZE(0x10),          //   16
+    HID_REPORT_COUNT(0x01),         //   1
+    HID_UNIT_EXPONENT(0x0E),        //   -2 (i.e. divide by 100)
+    HID_USAGE_SENSOR_UNITS_DEGREES,
 
     // --- Humidity Field ---
-    0x09, 0x33,       // USAGE (Environmental: Humidity Data)
-    0x15, 0x00,       // LOGICAL_MINIMUM (0)
-    0x26, 0x10, 0x27, // LOGICAL_MAXIMUM (10000)  -> 0.00% to 100.00%
-    0x75, 0x10,       // REPORT_SIZE (16)
-    0x95, 0x01,       // REPORT_COUNT (1)
-    0x55, 0x0E,       // UNIT_EXPONENT (-2, i.e. divide by 100)
-    0x65, 0x03,       // UNIT (Percentage)
-    0x81, 0x02,       // INPUT (Data, Var, Abs)
+    HID_USAGE_SENSOR_TYPE_ENVIRONMENTAL_HUMIDITY,
+    HID_LOGICAL_MIN_8(0x00),        // 0
+    HID_LOGICAL_MAX_16(0x10, 0x27), // 10000  -> 0.00% to 100.00%
+    HID_REPORT_SIZE(0x10),          // 16
+    HID_REPORT_COUNT(0x01),         // REPORT_COUNT (1)
+    HID_UNIT_EXPONENT(0x0E),        // UNIT_EXPONENT (-2, i.e. divide by 100)
+    HID_USAGE_SENSOR_GENERIC_UNIT_PERCENT,
 
-    0xC0 // END_COLLECTION
-};
+    HID_END_COLLECTION};
 
 const unsigned int hid_descriptor_plant_sensor_len = sizeof(hid_descriptor_plant_sensor);

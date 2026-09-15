@@ -35,7 +35,12 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(BasilBuddy src/main.c src/hid_descriptor.c)
+add_executable(
+    BasilBuddy
+    src/main.c
+    src/hid_descriptor.c
+    src/hid_descriptor.h
+)
 
 pico_set_program_name(BasilBuddy "BasilBuddy")
 pico_set_program_version(BasilBuddy "0.1")
@@ -45,18 +50,25 @@ pico_enable_stdio_uart(BasilBuddy 0)
 pico_enable_stdio_usb(BasilBuddy 1)
 
 # Add the standard library to the build
-target_link_libraries(BasilBuddy
-        pico_stdlib)
+target_link_libraries(
+    BasilBuddy
+    pico_stdlib
+    pico_btstack_ble
+)
 
 # Add the standard include files to the build
-target_include_directories(BasilBuddy PRIVATE
-        ${CMAKE_CURRENT_LIST_DIR}
+target_include_directories(BasilBuddy
+    PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src
+    PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include
 )
 
 # Add any user requested libraries
 target_link_libraries(BasilBuddy 
-        hardware_adc hardware_timer hardware_gpio hardware_sync
-        )
+        hardware_adc
+        hardware_timer
+        hardware_gpio
+        hardware_sync
+)
 
 pico_add_extra_outputs(BasilBuddy)
 
