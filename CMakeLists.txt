@@ -35,9 +35,15 @@ pico_sdk_init()
 add_executable(
     BasilBuddy
     src/main.c
+    src/ble_config.h
+    src/ble.c
+    src/ble.h
+    src/btstack_config.h
+    src/sensors.c
+    src/sensors.h
 )
 
-pico_btstack_make_gatt_header(BasilBuddy PRIVATE "${CMAKE_CURRENT_LIST_DIR}/config/plant_service.gatt")
+pico_btstack_make_gatt_header(BasilBuddy PRIVATE "${CMAKE_CURRENT_LIST_DIR}/src/plant_service.gatt")
 
 pico_set_program_name(BasilBuddy "BasilBuddy")
 pico_set_program_version(BasilBuddy "0.1")
@@ -62,7 +68,6 @@ target_link_libraries(
 
 target_include_directories(BasilBuddy
     PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src
-    PRIVATE ${CMAKE_CURRENT_LIST_DIR}/config
 )
 
 
