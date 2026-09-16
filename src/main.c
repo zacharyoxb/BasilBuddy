@@ -74,15 +74,14 @@ int main()
 
     add_repeating_timer_ms(30000, read_sensors_irq, NULL, &timer);
 
-    printf("Seq num, Humidity, Temp, Timestamp");
     while (true)
     {
-        printf("%u, %.2f%%, %.2f, %llu\n",
-               LAST_READING.seq,
-               moisture_to_percent(LAST_READING.moisture_raw),
-               temp_to_c(LAST_READING.temp_raw),
-               to_us_since_boot(LAST_READING.timestamp));
+        // printf("%u, %.2f%%, %.2f, %llu\n",
+        //        LAST_READING.seq,
+        //        moisture_to_percent(LAST_READING.moisture_raw),
+        //        temp_to_c(LAST_READING.temp_raw),
+        //        to_us_since_boot(LAST_READING.timestamp));
 
-        sleep_ms(30000);
+        // sleep_ms(30000);
     }
 }
