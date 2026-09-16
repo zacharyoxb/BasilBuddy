@@ -1,11 +1,13 @@
 #include <stdio.h>
+
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 #include "hardware/adc.h"
 #include "hardware/timer.h"
 #include "hardware/sync.h"
 
-#include "hid_descriptor.h"
+#include "btstack.h"
+#include "plant_service.h"
 
 const int ADC0_PIN = 0;
 const int TEMP_SENSOR_PIN = 4;

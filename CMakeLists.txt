@@ -25,22 +25,19 @@ endif()
 # ====================================================================================
 set(PICO_BOARD pico2_w CACHE STRING "Board type")
 
-# Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
 
 project(BasilBuddy C CXX ASM)
 
-# Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
-# Add executable. Default name is the project name, version 0.1
 
 add_executable(
     BasilBuddy
     src/main.c
-    src/hid_descriptor.c
-    src/hid_descriptor.h
 )
+
+pico_btstack_make_gatt_header(BasilBuddy PRIVATE "${CMAKE_CURRENT_LIST_DIR}/config/plant_service.gatt")
 
 pico_set_program_name(BasilBuddy "BasilBuddy")
 pico_set_program_version(BasilBuddy "0.1")
@@ -52,23 +49,23 @@ pico_enable_stdio_usb(BasilBuddy 1)
 # Add the standard library to the build
 target_link_libraries(
     BasilBuddy
+    hardware_adc
+    hardware_timer
+    hardware_gpio
+    hardware_sync
     pico_stdlib
     pico_btstack_ble
+    pico_btstack_cyw43
+    pico_cyw43_arch_none
+    
 )
 
-# Add the standard include files to the build
 target_include_directories(BasilBuddy
     PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src
-    PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include
+    PRIVATE ${CMAKE_CURRENT_LIST_DIR}/config
 )
 
-# Add any user requested libraries
-target_link_libraries(BasilBuddy 
-        hardware_adc
-        hardware_timer
-        hardware_gpio
-        hardware_sync
-)
+
 
 pico_add_extra_outputs(BasilBuddy)
 
